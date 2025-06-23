@@ -9,7 +9,7 @@ def show_balances(web3, account):
     print("🔍 Saldo per token:")
     for token in GTE_TOKENS:
         balance = get_token_balance(web3, account, token)
-        print(f" - {token[:8]}...: {web3.fromWei(balance, 'ether'):.4f}")
+        print(f" - {token[:8]}...: {Web3.from_wei(balance, 'ether'):.4f}")
 
 
 def get_token_balance(web3, account, token_address):
