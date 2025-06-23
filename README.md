@@ -73,8 +73,3 @@ Cocok buat farming testnet, demo project, atau uji strategi swap massal.
 📬 Notifikasi dikirim ke Telegram!
 ```
 
----
-
-## 🤖 By SAHME
-Buat kamu yang suka testnet, farming, & ngegas bot swap!  
-Follow Sahme for more GTE-powered tools. ✊
