@@ -8,6 +8,7 @@ from core.utils.utils import print_header, show_balances, get_token_balance
 from core.swap.swap import swap
 from approve import approve_if_needed
 from wrap_eth import wrap_eth
+from notify import send_telegram
 
 
 def load_wallets():
@@ -77,7 +78,10 @@ def main():
 
             approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction)
             tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction)
-            if tx: total_tx += 1
+            if tx:
+                total_tx += 1
+                tx_link = f"https://megascan.xyz/tx/{tx.hex()}"
+                send_telegram(f"✅ Swap sukses!\n💼 Wallet: {account.address}\n🔁 {token_in[:6]} → {token_out[:6]}\n🔗 {tx_link}")
             time.sleep(random.uniform(3, 8))
 
         print(f"\n✅ Wallet {account.address} selesai. Total transaksi hari ini: {total_tx}")
