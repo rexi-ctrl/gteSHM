@@ -1,6 +1,8 @@
-
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # <== Penting! Baca .env saat dijalankan
 
 def send_telegram(message):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
