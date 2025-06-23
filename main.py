@@ -43,20 +43,25 @@ def main():
             print(f"\n🔁 SWAP RANDOM KE-{i + 1}")
             show_balances(web3, account)
 
-            # Pilih token pair secara acak
-            token_pair = random.sample(GTE_TOKENS, 2)
-            token_in, token_out = token_pair[0], token_pair[1]
+            tokens_with_balance = [
+                token for token in GTE_TOKENS
+                if get_token_balance(web3, account, token) > 0
+            ]
 
-            if token_in == token_out:
+            if len(tokens_with_balance) < 2:
+                print("⚠️ Tidak cukup token dengan saldo untuk swap.")
                 continue
 
+            token_in = random.choice(tokens_with_balance)
+            token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
+
             amt = get_token_balance(web3, account, token_in)
-            if amt > 0:
-                print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
-                approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction)
-                tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction)
-                if tx: total_tx += 1
-                time.sleep(random.uniform(3, 8))
+            print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
+
+            approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction)
+            tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction)
+            if tx: total_tx += 1
+            time.sleep(random.uniform(3, 8))
 
         print(f"\n✅ Wallet {account.address} selesai. Total transaksi hari ini: {total_tx}")
 
