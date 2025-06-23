@@ -1,9 +1,8 @@
-
 import time
 import random
 from web3 import Web3
 from eth_account import Account
-from core.config import RPC_URL, ROUTER_ADDRESS, ROUTER_ABI, BASE_TOKEN, GTE_TOKENS
+from core.config import RPC_URL, ROUTER_ADDRESS, ROUTER_ABI, GTE_TOKENS
 from core.utils.utils import print_header, show_balances, get_token_balance
 from core.swap.swap import swap
 from approve import approve_if_needed
@@ -21,8 +20,8 @@ def main():
     private_keys = load_wallets()
 
     try:
-        rounds = int(input("🔁 Berapa kali mau swap bolak-balik per wallet? "))
-        percent = float(input("💸 Berapa persen dari saldo yang mau diswap tiap kali (contoh: 30)? "))
+        rounds = int(input("🔁 Berapa kali mau swap random per wallet? "))
+        percent = float(input("💸 Berapa persen dari saldo token yang mau diswap tiap kali (contoh: 30)? "))
     except ValueError:
         print("❌ Input tidak valid. Harus angka.")
         return
@@ -32,7 +31,6 @@ def main():
         return
 
     swap_fraction = percent / 100
-    tokens = [k for k in GTE_TOKENS if k != BASE_TOKEN]
 
     for idx, pk in enumerate(private_keys, start=1):
         account = Account.from_key(pk)
@@ -42,24 +40,23 @@ def main():
         total_tx = 0
 
         for i in range(rounds):
-            print(f"\n🔁 SWAP PUTARAN KE-{i + 1}")
+            print(f"\n🔁 SWAP RANDOM KE-{i + 1}")
             show_balances(web3, account)
 
-            for token in tokens:
-                amt = get_token_balance(web3, account, BASE_TOKEN)
-                if amt > 0:
-                    approve_if_needed(web3, account, BASE_TOKEN, ROUTER_ADDRESS, amt * swap_fraction)
-                    tx = swap(web3, account, router, BASE_TOKEN, token, amt * swap_fraction)
-                    if tx: total_tx += 1
-                    time.sleep(random.uniform(3, 8))
+            # Pilih token pair secara acak
+            token_pair = random.sample(GTE_TOKENS, 2)
+            token_in, token_out = token_pair[0], token_pair[1]
 
-            for token in tokens:
-                amt = get_token_balance(web3, account, token)
-                if amt > 0:
-                    approve_if_needed(web3, account, token, ROUTER_ADDRESS, amt)
-                    tx = swap(web3, account, router, token, BASE_TOKEN, amt)
-                    if tx: total_tx += 1
-                    time.sleep(random.uniform(3, 8))
+            if token_in == token_out:
+                continue
+
+            amt = get_token_balance(web3, account, token_in)
+            if amt > 0:
+                print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
+                approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction)
+                tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction)
+                if tx: total_tx += 1
+                time.sleep(random.uniform(3, 8))
 
         print(f"\n✅ Wallet {account.address} selesai. Total transaksi hari ini: {total_tx}")
 
