@@ -6,6 +6,7 @@ from core.config import RPC_URL, ROUTER_ADDRESS, ROUTER_ABI, GTE_TOKENS
 from core.utils.utils import print_header, show_balances, get_token_balance
 from core.swap.swap import swap
 from approve import approve_if_needed
+from wrap_eth import wrap_eth
 
 
 def load_wallets():
@@ -13,15 +14,21 @@ def load_wallets():
         return [line.strip() for line in f if line.strip()]
 
 
+def get_native_balance(web3, account):
+    return web3.fromWei(web3.eth.get_balance(account.address), 'ether')
+
+
 def main():
     print_header()
     web3 = Web3(Web3.HTTPProvider(RPC_URL))
     router = web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI)
     private_keys = load_wallets()
+    WETH = Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19")
 
     try:
         rounds = int(input("🔁 Berapa kali mau swap random per wallet? "))
         percent = float(input("💸 Berapa persen dari saldo token yang mau diswap tiap kali (contoh: 30)? "))
+        wrap_amount = float(input("💠 Mau wrap berapa ETH jadi WETH per wallet? (misal: 0.01): "))
     except ValueError:
         print("❌ Input tidak valid. Harus angka.")
         return
@@ -37,6 +44,12 @@ def main():
         print(f"\n{'='*50}\n👛 Wallet #{idx}: {account.address}\n{'='*50}")
         show_balances(web3, account)
 
+        native_eth = get_native_balance(web3, account)
+        print(f"💠 Saldo native ETH kamu: {native_eth:.4f}")
+
+        if native_eth > wrap_amount:
+            wrap_eth(web3, account, WETH, wrap_amount)
+
         total_tx = 0
 
         for i in range(rounds):
@@ -48,12 +61,15 @@ def main():
                 if get_token_balance(web3, account, token) > 0
             ]
 
-            if len(tokens_with_balance) < 2:
-                print("⚠️ Tidak cukup token dengan saldo untuk swap.")
+            if len(tokens_with_balance) == 0:
+                print("⚠️ Tidak ada token dengan saldo. Skip.")
                 continue
-
-            token_in = random.choice(tokens_with_balance)
-            token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
+            elif len(tokens_with_balance) == 1:
+                token_in = tokens_with_balance[0]
+                token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
+            else:
+                token_in = random.choice(tokens_with_balance)
+                token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
 
             amt = get_token_balance(web3, account, token_in)
             print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
