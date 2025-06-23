@@ -39,7 +39,7 @@ def approve_if_needed(web3, account, token_address, spender, amount):
         })
         signed_tx = web3.eth.account.sign_transaction(tx, private_key=account.key)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        print(f"📝 Approving token {token_address[:6]}... tx: {web3.toHex(tx_hash)}")
+        print(f"📝 Approving token {token_address[:6]}... tx: {tx_hash.hex()}")
         web3.eth.wait_for_transaction_receipt(tx_hash)
         return True
     except Exception as e:
