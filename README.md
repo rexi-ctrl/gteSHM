@@ -1,6 +1,6 @@
 # 🔁 GTE Auto Swap Bot — Powered by SAHME
 
-Bot Python untuk melakukan auto swap bolak-balik di jaringan GTE testnet.  
+Bot Python untuk melakukan auto swap bolak-balik di jaringan MEGA testnet.  
 Support banyak wallet, delay antar transaksi, dan statistik TX per wallet.
 
 ## 🚀 Cara Pakai
