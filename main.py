@@ -1,3 +1,4 @@
+
 import time
 import random
 from web3 import Web3
@@ -15,7 +16,7 @@ def load_wallets():
 
 
 def get_native_balance(web3, account):
-    return web3.fromWei(web3.eth.get_balance(account.address), 'ether')
+    return Web3.from_wei(web3.eth.get_balance(account.address), 'ether')
 
 
 def main():
