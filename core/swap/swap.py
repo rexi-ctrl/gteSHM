@@ -11,7 +11,7 @@ def swap(web3, account, router, token_in, token_out, amount_in):
             'from': account.address,
             'nonce': web3.eth.get_transaction_count(account.address),
             'gas': 200000,
-            'gasPrice': web3.toWei('1', 'gwei')
+            'gasPrice': Web3.to_wei(1, 'gwei')
         })
         signed_tx = web3.eth.account.sign_transaction(tx, private_key=account.key)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
