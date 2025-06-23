@@ -25,11 +25,7 @@ ROUTER_ABI = [
 BASE_TOKEN = Web3.to_checksum_address("0x768b22fc580d05fbdfefcfd7e462163832faca52")
 
 GTE_TOKENS = [
-    Web3.to_checksum_address("0x768b22fc580d05fbdfefcfd7e462163832faca52"),
-    Web3.to_checksum_address("0xe9b6e75c243b6100ffcb1c66e8f78f96feea727f"),
-    Web3.to_checksum_address("0xfaf334e157175ff676911adcf0964d7f54f2c424"),
-    Web3.to_checksum_address("0x073973ccc35761d7ddd48f0c6555914852671d17"),
-    Web3.to_checksum_address("0x10a6be7d23989d00d528e68cf8051d095f741145"),
-    Web3.to_checksum_address("0xfb1e310fee8f03844551ad3a62d55e7d0ab60e9e"),
-    Web3.to_checksum_address("0x10a4141bccfc69be90d2d2af058138876cce1ef8")
+    Web3.to_checksum_address("0x768b22fc580d05fbdfefcfd7e462163832faca52"),  # GTE
+    Web3.to_checksum_address("0xe9b6e75c243b6100ffcb1c66e8f78f96feea727f"),  # USD
+    Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19")   # ETH (WETH-style)
 ]
