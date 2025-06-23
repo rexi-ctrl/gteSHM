@@ -1,0 +1,11 @@
+# Jangan pernah upload file sensitif
+private_keys.txt
+.env
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# VSCode & OS Files
+.vscode/
+.DS_Store
