@@ -35,7 +35,7 @@ def approve_if_needed(web3, account, token_address, spender, amount):
         return True
 
     try:
-        tx = contract.functions.approve(spender, Web3.toWei(1_000_000, 'ether')).build_transaction({
+        tx = contract.functions.approve(spender, web3.toWei(1_000_000, 'ether')).build_transaction({
             'from': account.address,
             'nonce': web3.eth.get_transaction_count(account.address),
             'gas': 100000,
