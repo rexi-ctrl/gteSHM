@@ -146,7 +146,21 @@ def main():
     for idx, pk in enumerate(private_keys, start=1):
         account = Account.from_key(pk)
         print(f"\n{'='*50}\n👛 Wallet #{idx}: {account.address}\n{'='*50}")
-        show_balances(web3, account)
+        for token in GTE_TOKENS:
+            balance = get_token_balance(web3, account, token)
+            if balance > 0:
+                try:
+                    contract = web3.eth.contract(address=token, abi=[{
+                        "constant": True,
+                        "inputs": [],
+                        "name": "symbol",
+                        "outputs": [{"name": "", "type": "string"}],
+                        "type": "function"
+                    }])
+                    name = contract.functions.symbol().call()
+                except:
+                    name = token[:6]
+                print(f" - {name}: {balance:.4f}")
 
         native_eth = get_native_balance(web3, account)
         print(f"💠 Saldo native ETH kamu: {native_eth:.4f}")
