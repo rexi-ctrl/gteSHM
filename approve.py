@@ -1,4 +1,6 @@
-def approve_if_needed(web3, account, token_address, spender, amount):
+from web3 import Web3
+
+def approve_if_needed(web3, account, token_address, spender, amount, gas_price_gwei=0.1):
     abi = [
         {
             "constant": True,
@@ -24,7 +26,7 @@ def approve_if_needed(web3, account, token_address, spender, amount):
 
     contract = web3.eth.contract(address=token_address, abi=abi)
     allowance = contract.functions.allowance(account.address, spender).call()
-    amount_wei = int(amount * (10 ** 18))  # Konversi manual
+    amount_wei = int(amount * (10 ** 18))  # konversi manual
 
     if allowance >= amount_wei:
         print(f"✅ Token {token_address[:6]}... sudah di-approve.")
@@ -35,7 +37,7 @@ def approve_if_needed(web3, account, token_address, spender, amount):
             'from': account.address,
             'nonce': web3.eth.get_transaction_count(account.address),
             'gas': 100000,
-            'gasPrice': web3.eth.gas_price
+            'gasPrice': Web3.to_wei(gas_price_gwei, 'gwei')
         })
         signed_tx = web3.eth.account.sign_transaction(tx, private_key=account.key)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
