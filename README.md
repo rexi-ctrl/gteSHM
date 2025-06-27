@@ -1,12 +1,12 @@
-# GTE Testnet Swap Bot
+# GTE dan bronto Testnet Swap Bot
 
 Bot ini dirancang untuk melakukan swap token secara otomatis di jaringan MegaETH Testnet (GTE) menggunakan berbagai DEX seperti Uniswap dan Bronto (FDEX). Bot ini mendukung multi-wallet dan melakukan wrapping ETH, approve, dan swap secara acak untuk token tertentu.
 
 ## 🚀 Fitur
 
-- Swap otomatis antar token testnet GTE
+- Swap otomatis antar dex BRONTO dan GTE
 - Dukung multi-wallet (dari file `private_keys.txt`)
-- Pilihan DEX: Uniswap, FDEX, atau random
+- Pilihan DEX: GTE, FDEX/BRONTO, atau random
 - Support wrapping ETH ke WETH
 - Auto-approve token sebelum swap
 - Notifikasi hasil swap via Telegram
@@ -70,7 +70,7 @@ Bot akan menanyakan:
 - Jumlah ETH yang ingin di-wrap ke WETH
 
 ## 🧪 Catatan Penting
-- Ini adalah bot untuk testnet (MegaETH / GTE).
+- Ini adalah bot untuk testnet (MegaETH).
 - **Jangan gunakan untuk private key wallet utama.**
 - Pastikan wallet punya ETH testnet cukup untuk gas.
 - Waktu antar wallet dibuat random untuk menghindari pola.
