@@ -16,7 +16,7 @@ GTE_TOKENS = [
     Web3.to_checksum_address("0x9a9b33227fa5d386987a5892a7f0b730c9ba3e22"),  # Bronto
     Web3.to_checksum_address("0x130abef84be9cf2343e56247a7896f9962450b08")   # bUSDC
 ]
-from core.utils.utils import print_header, show_balances, get_token_balance
+from core.utils.utils import print_header, show_balances
 from core.swap.swap import swap
 from approve import approve_if_needed
 
@@ -97,6 +97,22 @@ def send_telegram(message):
 
 def get_native_balance(web3, account):
     return Web3.from_wei(web3.eth.get_balance(account.address), 'ether')
+
+def get_token_balance(web3, account, token_address):
+    try:
+        contract = web3.eth.contract(address=token_address, abi=[
+            {
+                "constant": True,
+                "inputs": [{"name": "owner", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "balance", "type": "uint256"}],
+                "type": "function"
+            }
+        ])
+        return contract.functions.balanceOf(account.address).call()
+    except Exception as e:
+        print(f"⚠️  Gagal ambil saldo token {token_address[:8]}...: {e}")
+        return 0
 
 def get_onchain_tx_count(web3, address):
     try:
