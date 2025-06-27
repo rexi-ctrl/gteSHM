@@ -1,75 +1,85 @@
+# GTE Testnet Swap Bot
 
-# 🔁 GTE Auto Swap Bot — Powered by SAHME
+Bot ini dirancang untuk melakukan swap token secara otomatis di jaringan MegaETH Testnet (GTE) menggunakan berbagai DEX seperti Uniswap dan Bronto (FDEX). Bot ini mendukung multi-wallet dan melakukan wrapping ETH, approve, dan swap secara acak untuk token tertentu.
 
-Bot Python untuk melakukan auto-swap token secara random di jaringan **GTE Testnet**.  
-Sudah support multi-wallet, auto-wrap native ETH, auto-approve token, dan notifikasi ke Telegram.  
-Cocok buat farming testnet, demo project, atau uji strategi swap massal.
+## 🚀 Fitur
 
----
+- Swap otomatis antar token testnet GTE
+- Dukung multi-wallet (dari file `private_keys.txt`)
+- Pilihan DEX: Uniswap, FDEX, atau random
+- Support wrapping ETH ke WETH
+- Auto-approve token sebelum swap
+- Notifikasi hasil swap via Telegram
+- Logging saldo, aktivitas swap, dan TX count
 
-## 🚀 Fitur Utama
-
-- ✅ Auto swap antar token (GTE, USD, WETH)
-- ✅ Support multi wallet (`private_keys.txt`)
-- ✅ Delay antar wallet & transaksi
-- ✅ Auto-approve token sebelum swap
-- ✅ Auto-wrap native ETH ke WETH (dengan input jumlah)
-- ✅ Input custom jumlah swap & loop
-- ✅ Notifikasi sukses ke Telegram (Markdown styled)
-- ✅ Tampilkan saldo token & native ETH
-
----
-
-## 📁 Struktur File
+## 🧩 Struktur Folder
 
 ```
 .
-├── main.py                  # Bot utama
-├── approve.py              # Fungsi approve token
-├── wrap_eth.py             # Fungsi auto-wrap ETH → WETH
-├── notify.py               # Kirim notifikasi Telegram
-├── private_keys.txt        # List private key (1 wallet per baris)
-├── requirements.txt        # Daftar dependensi
-├── .env                    # Konfigurasi Telegram bot
+├── main.py               # Script utama bot
+├── private_keys.txt      # File berisi private key (1 per baris)
+├── .env                  # Konfigurasi token Telegram & pengaturan
 ├── core/
-│   ├── config.py           # Konfigurasi jaringan & token
-│   ├── __init__.py
-│   └── utils/
-│       └── utils.py        # Show balances, headers, dll
-│   └── swap/
-│       └── swap.py         # Fungsi utama swap
+│   ├── config.py         # Berisi konfigurasi RPC dan ABI
+│   ├── swap/swap.py      # Fungsi utama swap token
+│   └── utils/utils.py    # Fungsi utilitas
+├── approve.py            # Fungsi approve token
+└── README.md             # Dokumentasi
 ```
+
+## ⚙️ Instalasi
+
+1. Clone repositori ini:
+```bash
+git clone https://github.com/namamu/gte-swap-bot.git
+cd gte-swap-bot
+```
+
+2. Install dependency:
+```bash
+pip install -r requirements.txt
+```
+
+3. Buat file `.env`:
+```env
+TELEGRAM_BOT_TOKEN=xxxxxx
+TELEGRAM_CHAT_ID=xxxxxx
+DEX_OVERRIDE=auto  # Pilihan: uniswap, fdex, auto
+```
+
+4. Tambahkan private key ke file `private_keys.txt`:
+```
+0xabc123...
+0xdef456...
+```
+
+## ▶️ Cara Menjalankan
+
+Jalankan bot dengan:
+```bash
+python main.py --dex auto
+```
+Opsi `--dex` bisa diisi:
+- `uniswap`
+- `fdex`
+- `auto` (default, random per TX)
+
+Bot akan menanyakan:
+- Jumlah swap per wallet
+- Persentase saldo token yang ingin diswap
+- Jumlah ETH yang ingin di-wrap ke WETH
+
+## 🧪 Catatan Penting
+- Ini adalah bot untuk testnet (MegaETH / GTE).
+- **Jangan gunakan untuk private key wallet utama.**
+- Pastikan wallet punya ETH testnet cukup untuk gas.
+- Waktu antar wallet dibuat random untuk menghindari pola.
+
+## 📩 Kontak
+Bot ini dibuat oleh SAHME. Untuk saran dan kontribusi, silakan buka PR atau kirim pesan di Telegram.
+
+📎X: [@belchman_](https://x.com/belchman_)
 
 ---
 
-## 🛠 Cara Pakai
-
-1. Clone repo ini
-2. Install dependensi:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Siapkan `.env`:
-   ```env
-   TELEGRAM_BOT_TOKEN=token_kamu
-   TELEGRAM_CHAT_ID=chat_id_kamu
-   ```
-4. Tambahkan wallet ke `private_keys.txt`
-5. Jalankan bot:
-   ```
-   python main.py
-   ```
-
----
-
-## 📦 Contoh Output
-
-```
-👛 Wallet #1: 0x6E25...
-💠 Saldo native ETH kamu: 0.0412
-💠 Wrapping 0.0150 ETH to WETH...
-🎯 Swap random: USD → GTE
-✅ Swap berhasil: https://megascan.xyz/tx/0xabc...
-📬 Notifikasi dikirim ke Telegram!
-```
-
+**Disclaimer:** Penggunaan script ini sepenuhnya tanggung jawab pengguna.
