@@ -137,6 +137,7 @@ def main():
         total_tx = 0
 
         for i in range(rounds):
+            router, router_address = get_rotated_router(web3)
             print(f"\n🔁 SWAP RANDOM KE-{i + 1}")
             show_balances(web3, account)
 
