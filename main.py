@@ -1,4 +1,3 @@
-
 import time
 import random
 import requests
@@ -20,7 +19,7 @@ def load_wallets():
 def get_native_balance(web3, account):
     return Web3.from_wei(web3.eth.get_balance(account.address), 'ether')
 
-def wrap_eth(web3, account, weth_address, amount_eth):
+def wrap_eth(web3, account, weth_address, amount_eth, gas_price_gwei):
     weth = web3.eth.contract(address=weth_address, abi=[{
         "inputs": [],
         "name": "deposit",
@@ -33,7 +32,7 @@ def wrap_eth(web3, account, weth_address, amount_eth):
         'value': Web3.to_wei(amount_eth, 'ether'),
         'nonce': web3.eth.get_transaction_count(account.address),
         'gas': 100000,
-        'gasPrice': Web3.to_wei(1, 'gwei')
+        'gasPrice': Web3.to_wei(gas_price_gwei, 'gwei')
     })
     signed = web3.eth.account.sign_transaction(tx, account.key)
     tx_hash = web3.eth.send_raw_transaction(signed.rawTransaction)
@@ -73,6 +72,7 @@ def main():
     router = web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI)
     private_keys = load_wallets()
     WETH = Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19")
+    gas_price_gwei = 0.1  # ✅ GANTI SESUAI KEBUTUHAN
 
     try:
         rounds = int(input("🔁 Berapa kali mau swap random per wallet? "))
@@ -101,7 +101,7 @@ def main():
             print(f"📦 Total TX on-chain: {onchain_total}")
 
         if native_eth > wrap_amount:
-            wrap_eth(web3, account, WETH, wrap_amount)
+            wrap_eth(web3, account, WETH, wrap_amount, gas_price_gwei)
 
         total_tx = 0
 
@@ -128,7 +128,7 @@ def main():
             print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
 
             try:
-                approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction)
+                approve_if_needed(web3, account, token_in, ROUTER_ADDRESS, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 err_msg = (
                     "*=========================*\n"
@@ -142,7 +142,7 @@ def main():
                 send_telegram(err_msg)
                 continue
             try:
-                tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction)
+                tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 err_msg = (
                     "*=========================*\n"
