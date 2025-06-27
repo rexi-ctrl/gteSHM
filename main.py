@@ -12,8 +12,9 @@ from core.config import RPC_URL, ROUTER_ADDRESS, ROUTER_ABI
 GTE_TOKENS = [
     Web3.to_checksum_address("0x768b22e6aaf9d0b6233b5820c8908ed820eb5b2c"),
     Web3.to_checksum_address("0xe9b6e7e7cb948e15cb6ac2d58cc05b57be7b07db"),
-    Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19"),
-    ]
+    Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19"),,
+    Web3.to_checksum_address("0xf82ff0799448630eb56ce747db840a2e02cde4d8")  # tkWBTC
+]
 from core.utils.utils import print_header, show_balances
 from core.swap.swap import swap
 from approve import approve_if_needed
