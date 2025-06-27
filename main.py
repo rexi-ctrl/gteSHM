@@ -28,8 +28,22 @@ args = parser.parse_args()
 
 def get_rotated_router(web3):
     override = args.dex or os.getenv("DEX_OVERRIDE", "auto").lower()
+
     if override == "uniswap":
         print("🧭 Router: UNISWAP (Manual Override)")
+        return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
+
+    if override == "fdex":
+        print("🧭 Router: FDEX (Manual Override)")
+        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
+
+    # Mode auto (random per swap)
+    use_fdex = random.choice([True, False])
+    if use_fdex:
+        print("🧭 Router: FDEX (Auto Random)")
+        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
+    else:
+        print("🧭 Router: UNISWAP (Auto Random)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
     elif override == "fdex":
         print("🧭 Router: FDEX (Manual Override)")
