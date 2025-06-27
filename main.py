@@ -202,22 +202,42 @@ def main():
                 approve_if_needed(web3, account, token_in, router_address, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 print(f"❌ Gagal approve: {e}")
-                send_telegram(f"*Approve Gagal:* {e}")
+                send_telegram(f"❌ *Approve Gagal!*
+📄 Error: `{e}`")
                 continue
 
             try:
                 tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 print(f"❌ Gagal swap: {e}")
-                send_telegram(f"*Swap Gagal:* {e}")
+                send_telegram(f"❌ *Swap Gagal!*
+📄 Error: `{e}`")
                 continue
 
             if tx:
                 total_tx += 1
-                tx_link = f"https://megascan.xyz/tx/{tx.hex()}"
+                tx_link = f"https://www.oklink.com/megaeth-testnet/tx/{tx.hex()}"
                 router_name = "Bronto (FDEX)" if router_address.lower() == FDEX_ROUTER_ADDRESS.lower() else "GTE ROUTER (GTE)"
                 print(f"✅ Swap sukses di {router_name}! TX: {tx_link}")
-                send_telegram(f"*Swap Sukses di {router_name}:* [{tx.hex()}]({tx_link})")
+                                # Ambil simbol token_in dan token_out
+                try:
+                    symbol_in = web3.eth.contract(address=token_in, abi=[{"name": "symbol", "outputs": [{"type": "string"}], "inputs": [], "stateMutability": "view", "type": "function"}]).functions.symbol().call()
+                except:
+                    symbol_in = token_in[:6]
+                try:
+                    symbol_out = web3.eth.contract(address=token_out, abi=[{"name": "symbol", "outputs": [{"type": "string"}], "inputs": [], "stateMutability": "view", "type": "function"}]).functions.symbol().call()
+                except:
+                    symbol_out = token_out[:6]
+
+                send_telegram(f"✨ *Swap Berhasil!*
+👛 Wallet: {account.address}
+🔁 Pair: {symbol_in} → {symbol_out}
+💼 DEX: {router_name}
+💰 Amount: {amt * swap_fraction / 1e18:.6f} {symbol_in}
+🔗 TX: [Klik di sini]({tx_link})
+📊 Total TX Hari Ini: {total_tx}
+📦 Total TX (Onchain): {onchain_total}
+⛽ Gas Estimasi: {gas_price_gwei} Gwei")
 
             time.sleep(random.uniform(3, 8))
 
