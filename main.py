@@ -202,16 +202,16 @@ def main():
                 approve_if_needed(web3, account, token_in, router_address, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 print(f"❌ Gagal approve: {e}")
-                send_telegram(f"❌ *Approve Gagal!*
-📄 Error: `{e}`")
+                send_telegram(f"""❌ *Approve Gagal!*
+📄 Error: `{e}`""")
                 continue
 
             try:
                 tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction, gas_price_gwei)
             except Exception as e:
                 print(f"❌ Gagal swap: {e}")
-                send_telegram(f"❌ *Swap Gagal!*
-📄 Error: `{e}`")
+                send_telegram(f"""❌ *Swap Gagal!*
+📄 Error: `{e}`""")
                 continue
 
             if tx:
