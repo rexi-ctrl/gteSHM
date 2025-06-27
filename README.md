@@ -75,9 +75,6 @@ Bot akan menanyakan:
 - Pastikan wallet punya ETH testnet cukup untuk gas.
 - Waktu antar wallet dibuat random untuk menghindari pola.
 
-## 📩 Kontak
-Bot ini dibuat oleh SAHME. Untuk saran dan kontribusi, silakan buka PR atau kirim pesan di X.
-
 📎X: [@belchman_](https://x.com/belchman_)
 
 ---
