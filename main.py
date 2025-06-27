@@ -20,23 +20,32 @@ from core.utils.utils import print_header, show_balances
 from core.swap.swap import swap
 from approve import approve_if_needed
 
+# Bronto (FDEX) Router
 FDEX_ROUTER_ADDRESS = "0xA6b579684E943F7D00d616A48cF99b5147fC57A5"
-FDEX_ROUTER_ABI = ROUTER_ABI
+FDEX_ROUTER_ABI = ROUTER_ABI  # Diasumsikan kompatibel
 
 load_dotenv()
 
+# Strategi pemilihan router: bisa override lewat argumen CLI atau .env
+from datetime import datetime
+
+# CLI argumen
 parser = argparse.ArgumentParser()
 parser.add_argument("--dex", help="Pilih DEX: uniswap, fdex, atau auto", default=None)
 args = parser.parse_args()
 
 def get_rotated_router(web3):
     override = args.dex or os.getenv("DEX_OVERRIDE", "auto").lower()
+
     if override == "uniswap":
         print("🧭 Router: UNISWAP (Manual Override)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
+
     if override == "fdex":
         print("🧭 Router: FDEX (Manual Override)")
         return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
+
+    # Mode auto: random per swap
     use_fdex = random.choice([True, False])
     if use_fdex:
         print("🧭 Router: FDEX (Auto Random)")
@@ -51,7 +60,11 @@ def load_wallets():
 
 def wrap_eth(web3, account, weth_address, amount_eth, gas_price_gwei):
     weth = web3.eth.contract(address=weth_address, abi=[{
-        "inputs": [], "name": "deposit", "outputs": [], "stateMutability": "payable", "type": "function"
+        "inputs": [],
+        "name": "deposit",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
     }])
     tx = weth.functions.deposit().build_transaction({
         'from': account.address,
@@ -87,13 +100,15 @@ def get_native_balance(web3, account):
 
 def get_token_balance(web3, account, token_address):
     try:
-        contract = web3.eth.contract(address=token_address, abi=[{
-            "constant": True,
-            "inputs": [{"name": "owner", "type": "address"}],
-            "name": "balanceOf",
-            "outputs": [{"name": "balance", "type": "uint256"}],
-            "type": "function"
-        }])
+        contract = web3.eth.contract(address=token_address, abi=[
+            {
+                "constant": True,
+                "inputs": [{"name": "owner", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "balance", "type": "uint256"}],
+                "type": "function"
+            }
+        ])
         return contract.functions.balanceOf(account.address).call()
     except Exception as e:
         print(f"⚠️  Gagal ambil saldo token {token_address[:8]}...: {e}")
@@ -110,17 +125,131 @@ def main():
     print_header()
     web3 = Web3(Web3.HTTPProvider(RPC_URL))
     router, router_address = get_rotated_router(web3)
+
     private_keys = load_wallets()
     WETH = Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19")
     gas_price_gwei = 0.1
 
-    rounds = 2
-    percent = 50.0
-    wrap_amount = 0.01
+    try:
+        rounds = int(input("🔁 Berapa kali mau swap random per wallet? "))
+        percent = float(input("💸 Berapa persen dari saldo token yang mau diswap tiap kali (contoh: 30)? "))
+        wrap_amount = float(input("💠 Mau wrap berapa ETH jadi WETH per wallet? (misal: 0.01): "))
+    except ValueError:
+        print("❌ Input tidak valid. Harus angka.")
+        return
+
+    if not 0 < percent <= 100:
+        print("❌ Persen harus antara 0-100.")
+        return
+
     swap_fraction = percent / 100
 
-    # --- LANJUTAN LOGIKA BOT TETAP (dipersingkat) ---
-    print("🚀 Bot siap dijalankan tanpa input manual.")
+    for idx, pk in enumerate(private_keys, start=1):
+        account = Account.from_key(pk)
+        print(f"\n{'='*50}\n👛 Wallet #{idx}: {account.address}\n{'='*50}")
+        for token in GTE_TOKENS:
+            balance = get_token_balance(web3, account, token)
+            if balance > 0:
+                try:
+                    contract = web3.eth.contract(address=token, abi=[{
+                        "constant": True,
+                        "inputs": [],
+                        "name": "symbol",
+                        "outputs": [{"name": "", "type": "string"}],
+                        "type": "function"
+                    }])
+                    name = contract.functions.symbol().call()
+                except:
+                    name = token[:6]
+                print(f" - {name}: {balance:.4f}")
+
+        native_eth = get_native_balance(web3, account)
+        print(f"💠 Saldo native ETH kamu: {native_eth:.4f}")
+
+        onchain_total = get_onchain_tx_count(web3, account.address)
+        if onchain_total is not None:
+            print(f"📦 Total TX on-chain: {onchain_total}")
+
+        if native_eth > wrap_amount:
+            wrap_eth(web3, account, WETH, wrap_amount, gas_price_gwei)
+
+        total_tx = 0
+
+        for i in range(rounds):
+            router, router_address = get_rotated_router(web3)
+            print(f"\n🔁 SWAP RANDOM KE-{i + 1}")
+            show_balances(web3, account)
+
+            tokens_with_balance = [
+                token for token in GTE_TOKENS
+                if get_token_balance(web3, account, token) > 0
+            ]
+
+            if len(tokens_with_balance) == 0:
+                print("⚠️ Tidak ada token dengan saldo. Skip.")
+                continue
+            elif len(tokens_with_balance) == 1:
+                token_in = tokens_with_balance[0]
+                token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
+            else:
+                token_in = random.choice(tokens_with_balance)
+                token_out = random.choice([t for t in GTE_TOKENS if t != token_in])
+
+            amt = get_token_balance(web3, account, token_in)
+            print(f"🎯 Swap random: {token_in[:6]}... → {token_out[:6]}...")
+
+            try:
+                approve_if_needed(web3, account, token_in, router_address, amt * swap_fraction, gas_price_gwei)
+            except Exception as e:
+                print(f"❌ Gagal approve: {e}")
+                send_telegram(f"❌ *Approve Gagal!*
+📄 Error: `{e}`")
+                continue
+
+            try:
+                tx = swap(web3, account, router, token_in, token_out, amt * swap_fraction, gas_price_gwei)
+            except Exception as e:
+                print(f"❌ Gagal swap: {e}")
+                send_telegram(f"❌ *Swap Gagal!*
+📄 Error: `{e}`")
+                continue
+
+            if tx:
+                total_tx += 1
+                tx_link = f"https://www.oklink.com/megaeth-testnet/tx/{tx.hex()}"
+                router_name = "Bronto (FDEX)" if router_address.lower() == FDEX_ROUTER_ADDRESS.lower() else "GTE ROUTER (GTE)"
+                print(f"✅ Swap sukses di {router_name}! TX: {tx_link}")
+                                # Ambil simbol token_in dan token_out
+                try:
+                    symbol_in = web3.eth.contract(address=token_in, abi=[{"name": "symbol", "outputs": [{"type": "string"}], "inputs": [], "stateMutability": "view", "type": "function"}]).functions.symbol().call()
+                except:
+                    symbol_in = token_in[:6]
+                try:
+                    symbol_out = web3.eth.contract(address=token_out, abi=[{"name": "symbol", "outputs": [{"type": "string"}], "inputs": [], "stateMutability": "view", "type": "function"}]).functions.symbol().call()
+                except:
+                    symbol_out = token_out[:6]
+
+                send_telegram(f"✨ *Swap Berhasil!*
+👛 Wallet: {account.address}
+🔁 Pair: {symbol_in} → {symbol_out}
+💼 DEX: {router_name}
+💰 Amount: {amt * swap_fraction / 1e18:.6f} {symbol_in}
+🔗 TX: [Klik di sini]({tx_link})
+📊 Total TX Hari Ini: {total_tx}
+📦 Total TX (Onchain): {onchain_total}
+⛽ Gas Estimasi: {gas_price_gwei} Gwei")
+
+            time.sleep(random.uniform(3, 8))
+
+        print(f"\n✅ Wallet {account.address} selesai. Total transaksi hari ini: {total_tx}")
+
+        if idx < len(private_keys):
+            wait = random.randint(10, 25)
+            print(f"⏳ Menunggu {wait} detik sebelum lanjut ke wallet berikutnya...")
+            time.sleep(wait)
+
+    print("\n🎉 Semua wallet selesai swap hari ini.")
+    print("🤖 Bot by SAHME — GTE Testnet domination started.\n")
 
 if __name__ == "__main__":
     try:
