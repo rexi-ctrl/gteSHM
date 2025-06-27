@@ -13,9 +13,7 @@ GTE_TOKENS = [
     Web3.to_checksum_address("0x768b22e6aaf9d0b6233b5820c8908ed820eb5b2c"),
     Web3.to_checksum_address("0xe9b6e7e7cb948e15cb6ac2d58cc05b57be7b07db"),
     Web3.to_checksum_address("0x776401b9bc8aae31a685731b7147d4445fd9fb19"),
-    Web3.to_checksum_address("0x9a9b33227fa5d386987a5892a7f0b730c9ba3e22"),  # Bronto
-    Web3.to_checksum_address("0x130abef84be9cf2343e56247a7896f9962450b08")   # bUSDC
-]
+    ]
 from core.utils.utils import print_header, show_balances
 from core.swap.swap import swap
 from approve import approve_if_needed
