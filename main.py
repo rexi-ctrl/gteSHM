@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
 from core.config import RPC_URL, ROUTER_ADDRESS, ROUTER_ABI, GTE_TOKENS
-from core.utils.utils import print_header, show_balances, get_token_balance, 
+from core.utils.utils import print_header, show_balances, get_token_balance
 from core.swap.swap import swap
 from approve import approve_if_needed
 
@@ -95,7 +95,6 @@ def get_onchain_tx_count(web3, address):
     except Exception as e:
         print(f"❌ Gagal ambil total TX onchain: {e}")
         return None
-    return Web3.from_wei(web3.eth.get_balance(account.address), 'ether')
 
 def main():
     print_header()
