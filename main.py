@@ -175,8 +175,9 @@ def main():
             if tx:
                 total_tx += 1
                 tx_link = f"https://megascan.xyz/tx/{tx.hex()}"
-                print(f"✅ Swap sukses! TX: {tx_link}")
-                send_telegram(f"*Swap Sukses:* [{tx.hex()}]({tx_link})")
+                router_name = "Bronto" if router_address.lower() == FDEX_ROUTER_ADDRESS.lower() else "DTE"
+                print(f"✅ Swap sukses di {router_name}! TX: {tx_link}")
+                send_telegram(f"*Swap Sukses di {router_name}:* [{tx.hex()}]({tx_link})")
 
             time.sleep(random.uniform(3, 8))
 
