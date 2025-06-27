@@ -37,38 +37,13 @@ def get_rotated_router(web3):
         print("🧭 Router: FDEX (Manual Override)")
         return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
 
-    # Mode auto (random per swap)
+    # Mode auto: random per swap
     use_fdex = random.choice([True, False])
     if use_fdex:
         print("🧭 Router: FDEX (Auto Random)")
         return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
     else:
         print("🧭 Router: UNISWAP (Auto Random)")
-        return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
-    elif override == "fdex":
-        print("🧭 Router: FDEX (Manual Override)")
-        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
-
-    # Mode auto (random per swap)
-    use_fdex = random.choice([True, False])
-    if use_fdex:
-        print("🧭 Router: FDEX (Auto Random)")
-        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
-    else:
-        print("🧭 Router: UNISWAP (Auto Random)")
-        return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
-    elif override == "fdex":
-        print("🧭 Router: FDEX (Manual Override)")
-        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
-
-    # Mode auto (default)
-    weekday = datetime.utcnow().weekday()  # 0 = Monday, 6 = Sunday
-    use_fdex = weekday % 2 == 0  # pakai FDEX di hari genap
-    if use_fdex:
-        print("🧭 Router: FDEX (Rotasi Harian)")
-        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
-    else:
-        print("🧭 Router: UNISWAP (Rotasi Harian)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
 
 def load_wallets():
