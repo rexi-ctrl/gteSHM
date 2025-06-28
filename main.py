@@ -21,30 +21,30 @@ GTE_TOKENS = [
     Web3.to_checksum_address("0x8d635c4702ba38b1f1735e8e784c7265dcc0b623")
 ]
 
-BRONTO_ROUTER_ADDRESS = "0xA6b579684E943F7D00d616A48cF99b5147fC57A5"
-BRONTO_ROUTER_ABI = ROUTER_ABI
+FDEX_ROUTER_ADDRESS = "0xA6b579684E943F7D00d616A48cF99b5147fC57A5"
+FDEX_ROUTER_ABI = ROUTER_ABI
 
 load_dotenv()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dex", help="Pilih DEX: GTE, BRONTO, atau auto", default=None)
+parser.add_argument("--dex", help="Pilih DEX: uniswap, fdex, atau auto", default=None)
 args = parser.parse_args()
 
 def get_rotated_router(web3):
     override = args.dex or os.getenv("DEX_OVERRIDE", "auto").lower()
 
-    if override == "GTE":
+    if override == "uniswap":
         print("🧭 Router: GTE (Manual Override)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
 
-    if override == "BRONTO":
+    if override == "fdex":
         print("🧭 Router: BRONTO (Manual Override)")
-        return web3.eth.contract(address=BRONTO_ROUTER_ADDRESS, abi=BRONTO_ROUTER_ABI), BRONTO_ROUTER_ADDRESS
+        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
 
-    use_BRONTO = random.choice([True, False])
-    if use_BRONTO:
+    use_fdex = random.choice([True, False])
+    if use_fdex:
         print("🧭 Router: BRONTO (Auto Random)")
-        return web3.eth.contract(address=BRONTO_ROUTER_ADDRESS, abi=BRONTO_ROUTER_ABI), BRONTO_ROUTER_ADDRESS
+        return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
     else:
         print("🧭 Router: GTE (Auto Random)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
@@ -204,7 +204,7 @@ def main():
             if tx:
                 total_tx += 1
                 tx_link = f"https://www.oklink.com/megaeth-testnet/tx/{tx.hex()}"
-                router_name = "Bronto (BRONTO)" if router_address.lower() == BRONTO_ROUTER_ADDRESS.lower() else "GTE ROUTER (GTE)"
+                router_name = "Bronto (FDEX)" if router_address.lower() == FDEX_ROUTER_ADDRESS.lower() else "GTE ROUTER (GTE)"
                 try:
                     symbol_in = web3.eth.contract(address=token_in, abi=[{"name": "symbol", "outputs": [{"type": "string"}], "inputs": [], "stateMutability": "view", "type": "function"}]).functions.symbol().call()
                 except:
