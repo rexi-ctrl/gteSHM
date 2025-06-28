@@ -27,14 +27,14 @@ FDEX_ROUTER_ABI = ROUTER_ABI
 load_dotenv()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dex", help="Pilih DEX: uniswap, fdex, atau auto", default=None)
+parser.add_argument("--dex", help="Pilih DEX: GTE, fdex, atau auto", default=None)
 args = parser.parse_args()
 
 def get_rotated_router(web3):
     override = args.dex or os.getenv("DEX_OVERRIDE", "auto").lower()
 
-    if override == "uniswap":
-        print("🧭 Router: UNISWAP (Manual Override)")
+    if override == "GTE":
+        print("🧭 Router: GTE (Manual Override)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
 
     if override == "fdex":
@@ -46,7 +46,7 @@ def get_rotated_router(web3):
         print("🧭 Router: FDEX (Auto Random)")
         return web3.eth.contract(address=FDEX_ROUTER_ADDRESS, abi=FDEX_ROUTER_ABI), FDEX_ROUTER_ADDRESS
     else:
-        print("🧭 Router: UNISWAP (Auto Random)")
+        print("🧭 Router: GTE (Auto Random)")
         return web3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI), ROUTER_ADDRESS
 
 def load_wallets():
