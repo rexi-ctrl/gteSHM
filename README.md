@@ -31,8 +31,8 @@ Bot ini dirancang untuk melakukan swap token secara otomatis di jaringan MegaETH
 
 1. Clone repositori ini:
 ```bash
-git clone https://github.com/namamu/gte-swap-bot.git
-cd gte-swap-bot
+git clone https://github.com/namamu/gteSHM.git
+cd gteshm
 ```
 
 2. Install dependency:
